@@ -158,8 +158,8 @@ while True:
             else:
                 print('定向失败！')
                 exit()
-        elif packet['op'] == WS_OP_HEARTBEAT_REPLY: # 心跳包回应
-            pass
+        elif packet['op'] == WS_OP_HEARTBEAT_REPLY: # 心跳包回应，同时返回人气值（直播间是setTimeout线性插值的所以变化快，实际上都是30秒一更新）
+            print('当前房间人气：' + str(struct.unpack('!I',packet['body'])[0]))
         elif packet['op'] == WS_OP_MESSAGE:
             danmaku = json.loads(packet['body'])
             if danmaku['cmd'] == 'DANMU_MSG': # 弹幕
@@ -220,10 +220,20 @@ while True:
                 pass
             elif danmaku['cmd'] == 'COMBO_END': # 连击结束
                 pass
-            elif danmaku['cmd'] == 'GUARD_BUY': # 上舰
-                uname = danmaku['data']['username']
-                guard = danmaku['data']['gift_name']
-                print('欢迎' + uname + '上舰成为' + guard)
+            elif danmaku['cmd'] == 'GUARD_BUY': # 上舰，不确定这个还能不能用
+                pass
+                # uname = danmaku['data']['username']
+                # guard = danmaku['data']['gift_name']
+                # print('-----------------------欢迎' + uname + '上舰成为' + guard)
+            elif danmaku['cmd'] == 'GUARD_MSG': # 也是上舰消息
+                pass
+                # print(danmaku['msg']) # :?XXXXXX:? 在本房间开通了舰长
+            elif danmaku['cmd'] == 'USER_TOAST_MSG': # 同样是上舰信息，但是提示了是续费还是新上舰
+                # pass
+                print(danmaku['data']['toast_msg']) # <%XXXXXX%>续费了主播的舰长
+            elif danmaku['cmd'] == 'GUARD_LOTTERY_START': # 也是上舰信息，为啥这么多……抽奖抽到舰长？
+                pass
+                # print(danmaku['data']['lottery']['thank_text']) # 恭喜<%XXXXXX%>上任舰长
             elif danmaku['cmd'] == 'ROOM_REAL_TIME_MESSAGE_UPDATE': # 粉丝数更新
                 pass
             elif danmaku['cmd'] == 'WELCOME': # 房管老爷进入直播间
@@ -247,10 +257,14 @@ while True:
                 elif danmaku['data']['guard_level'] == 3:
                     guard = '舰长'
                 print('欢迎' + guard + uname + '进入直播间')
+            elif danmaku['cmd'] == 'ENTRY_EFFECT': # 也是欢迎舰长的进入房间的好像，但原本的还能用
+                pass
+                # print(danmaku['data']['copy_writing']) # 欢迎舰 长 <%XXXXXX%> 进入直播间
             elif danmaku['cmd'] == 'NOTICE_MSG': # 其他房间消息（谁谁谁打赏一个小电视快来抽奖balabalabalabala）
                 pass
             elif danmaku['cmd'] == 'ROOM_RANK': # 房间啥啥榜排名
-                # print('房间排名已到达：' + danmaku['data']['rank_desc'])
+                print('房间排名已到达：' + danmaku['data']['rank_desc'])
+            elif danmaku['cmd'] == 'ACTIVITY_BANNER_UPDATE_V2': # 房间啥啥榜排名，没有用文字写是哪个榜单，但提供的背景png里有说
                 pass
             elif danmaku['cmd'] == 'SUPER_CHAT_MESSAGE': # VTB区专用醒目留言（并不是YTB的SuperChat笑），还有颜色啥的字段，懒得写了
                 admin = ''
@@ -260,6 +274,8 @@ while True:
                 ul = '[UL %d]' % danmaku['data']['user_info']['user_level']
                 uname = danmaku['data']['user_info']['uname']
                 danmu = danmaku['data']['message']
+                # if danmaku['data']['trans_mark'] == 1:
+                    # danmu = danmu + ' (' + danmaku['data']['message_trans'] + ')' # 如果发送时选择了中译日这里会有翻译
                 if danmaku['data']['uid'] == uid:
                     admin = '[主播]'
                 elif danmaku['data']['user_info']['manager'] == 1:
@@ -276,41 +292,52 @@ while True:
                     else:
                         vip = '[老爷]'
                 price = 'RMB￥%d' % danmaku['data']['price']
-                sctime = '%d分钟' % (round(danmaku['data']['time'] / 60.0)) # 因为有延迟，秒数总是对不上，所以四舍五入至分（总不能延迟半分钟才出来）
+                # sctime = '%d分钟' % (round(danmaku['data']['time'] / 60.0)) # 因为有延迟，秒数总是对不上，所以四舍五入至分（总不能延迟半分钟才出来）
+                sctime = '%d分钟' % ((danmaku['data']['end_time'] - danmaku['data']['start_time']) / 60.0) # 现在不会有秒数对不上的问题了
                 print('=============醒目留言=============')
                 print(' 来自 ' + guard + vip + admin + medal + ul + uname + ' 的醒目留言（' + price + '，' + sctime + '）')
+                if danmaku['data']['trans_mark'] == 1:
+                    print(' ' + danmaku['data']['message_trans'])
                 print(' ' + danmu)
                 print('==================================')
-            elif danmaku['cmd'] == 'SUPER_CHAT_MESSAGE_JPN': # VTB区醒目留言中译日，会比SUPER_CHAT_MESSAGE延迟一点出现，两个内容是相同的，应该要二选一
-                admin = ''
-                guard = ''
-                vip = ''
-                medal = ''
-                ul = '[UL %d]' % danmaku['data']['user_info']['user_level']
-                uname = danmaku['data']['user_info']['uname']
-                danmu = danmaku['data']['message']
-                danmu_jpn = danmaku['data']['message_jpn']
-                if danmaku['data']['uid'] == uid:
-                    admin = '[主播]'
-                elif danmaku['data']['user_info']['manager'] == 1:
-                    admin = '[房管]'
-                if danmaku['data']['user_info']['guard_level'] == 1:
-                    guard = '[总督]'
-                elif danmaku['data']['user_info']['guard_level'] == 2:
-                    guard = '[提督]'
-                elif danmaku['data']['user_info']['guard_level'] == 3:
-                    guard = '[舰长]'
-                if danmaku['data']['user_info']['is_vip'] == 1:
-                    if danmaku['data']['user_info']['is_svip'] == 1:
-                        vip = '[年费老爷]'
-                    else:
-                        vip = '[老爷]'
-                price = '%d円' % (danmaku['data']['price'] * 15.7257) # 获取下实时汇率比较好……
-                sctime = '%d分' % (round(danmaku['data']['time'] / 60.0))
-                print('=============SUPER CHAT=============')
-                print(' 来自 ' + guard + vip + admin + medal + ul + uname + ' 的SUPER CHAT（' + price + '，' + sctime + '）')
-                print(' ' + danmu_jpn)
-                print(' ' + danmu)
-                print('====================================')
-            else: # 更新用
+            elif danmaku['cmd'] == 'SUPER_CHAT_MESSAGE_JPN': # 日区专用SUPERCHAT，会把所有SUPER_CHAT内容翻译成日语，不论是否选择中译日（但是好像有会重复发送的bug？应该可以根据id更新已经显示的SC）
+                # admin = ''
+                # guard = ''
+                # vip = ''
+                # medal = ''
+                # ul = '[UL %d]' % danmaku['data']['user_info']['user_level']
+                # uname = danmaku['data']['user_info']['uname']
+                # danmu = danmaku['data']['message']
+                # danmu_jpn = danmaku['data']['message_jpn']
+                # if danmaku['data']['uid'] == uid:
+                #     admin = '[主播]'
+                # elif danmaku['data']['user_info']['manager'] == 1:
+                #     admin = '[房管]'
+                # if danmaku['data']['user_info']['guard_level'] == 1:
+                #     guard = '[总督]'
+                # elif danmaku['data']['user_info']['guard_level'] == 2:
+                #     guard = '[提督]'
+                # elif danmaku['data']['user_info']['guard_level'] == 3:
+                #     guard = '[舰长]'
+                # if danmaku['data']['user_info']['is_vip'] == 1:
+                #     if danmaku['data']['user_info']['is_svip'] == 1:
+                #         vip = '[年费老爷]'
+                #     else:
+                #         vip = '[老爷]'
+                # price = '%d円' % (danmaku['data']['price'] * 15.7257) # 获取下实时汇率比较好……
+                # # sctime = '%d分' % (round(danmaku['data']['time'] / 60.0))
+                # sctime = '%d分' % ((danmaku['data']['end_time'] - danmaku['data']['start_time']) / 60.0) # 现在不会有秒数对不上的问题了
+                # print('=============SUPER CHAT=============')
+                # print(' 来自 ' + guard + vip + admin + medal + ul + uname + ' 的SUPER CHAT（' + price + '，' + sctime + '）')
+                # print(' ' + danmu_jpn)
+                # print(' ' + danmu)
+                # print('====================================')
                 pass
+            elif danmaku['cmd'] == 'ROOM_SILENT_ON': # 禁言设置
+                # {'cmd': 'ROOM_SILENT_ON', 'data': {'type': 'level', 'level': 1, 'second': -1}}
+                pass
+            else: # 更新用
+                print(danmaku)
+                pass
+        else: # 更新用
+            print(packet)
