@@ -220,18 +220,17 @@ while True:
                 pass
             elif danmaku['cmd'] == 'COMBO_END': # 连击结束
                 pass
-            elif danmaku['cmd'] == 'GUARD_BUY': # 上舰，不确定这个还能不能用
-                pass
-                # uname = danmaku['data']['username']
-                # guard = danmaku['data']['gift_name']
-                # print('-----------------------欢迎' + uname + '上舰成为' + guard)
+            elif danmaku['cmd'] == 'GUARD_BUY': # 上舰，依然能用
+                uname = danmaku['data']['username']
+                guard = danmaku['data']['gift_name']
+                print('欢迎' + uname + '上舰成为' + guard)
             elif danmaku['cmd'] == 'GUARD_MSG': # 也是上舰消息
                 pass
                 # print(danmaku['msg']) # :?XXXXXX:? 在本房间开通了舰长
             elif danmaku['cmd'] == 'USER_TOAST_MSG': # 同样是上舰信息，但是提示了是续费还是新上舰
-                # pass
-                print(danmaku['data']['toast_msg']) # <%XXXXXX%>续费了主播的舰长
-            elif danmaku['cmd'] == 'GUARD_LOTTERY_START': # 也是上舰信息，为啥这么多……抽奖抽到舰长？
+                pass
+                # print(danmaku['data']['toast_msg']) # <%XXXXXX%>续费了主播的舰长
+            elif danmaku['cmd'] == 'GUARD_LOTTERY_START': # 似乎是上舰抽奖
                 pass
                 # print(danmaku['data']['lottery']['thank_text']) # 恭喜<%XXXXXX%>上任舰长
             elif danmaku['cmd'] == 'ROOM_REAL_TIME_MESSAGE_UPDATE': # 粉丝数更新
@@ -333,9 +332,95 @@ while True:
                 # print(' ' + danmu)
                 # print('====================================')
                 pass
-            elif danmaku['cmd'] == 'ROOM_SILENT_ON': # 禁言设置
+            elif danmaku['cmd'] == 'SUPER_CHAT_MESSAGE_DELETE': # 翻JS代码找到的，看起来是删除已显示的SC的
+                pass
+            elif danmaku['cmd'] == 'SUPER_CHAT_ENTRANCE': # 不晓得干啥的
+                pass
+            elif danmaku['cmd'] == 'ROOM_SILENT_ON': # 禁言开启
                 # {'cmd': 'ROOM_SILENT_ON', 'data': {'type': 'level', 'level': 1, 'second': -1}}
                 pass
+            elif danmaku['cmd'] == 'ROOM_SLIENT_OFF': # 禁言关闭
+                pass
+            elif danmaku['cmd'] == 'WISH_BOTTLE': # 主播许愿瓶
+                pass
+            elif danmaku['cmd'] == 'WARNING': # 超管警告
+            # (function(t) {
+            #     return U(this, void 0, void 0, a.a.mark(function e() {
+            #         return a.a.wrap(function(e) {
+            #             for (; ; )
+            #                 switch (e.prev = e.next) {
+            #                 case 0:
+            #                     u.store.getters.baseInfoUser.isAnchor ? (n = t.msg,
+            #                     Object(f.b)({
+            #                         title: "友情提示",
+            #                         width: 300,
+            #                         button: {
+            #                             confirm: "知道了",
+            #                             cancel: !1
+            #                         },
+            #                         content: n,
+            #                         hideMask: !0
+            #                     })) : D(t.msg);
+            #                 case 2:
+            #                 case "end":
+            #                     return e.stop()
+            #                 }
+            #             var n
+            #         }, e, this)
+            #     }))
+            # }
+            # )(t).catch(d.noop);
+                print('!!!!!!!!!!超管警告!!!!!!!!!!')
+                print(danmaku['msg'])
+                print('!!!!!!!!!!超管警告!!!!!!!!!!')
+            elif danmaku['cmd'] == 'CUT_OFF': # 超管切断直播
+            # (function(t) {
+            #     return m(this, void 0, void 0, a.a.mark(function t() {
+            #         var e, r, i;
+            #         return a.a.wrap(function(t) {
+            #             for (; ; )
+            #                 switch (t.prev = t.next) {
+            #                 case 0:
+            #                     return e = u.store.getters.baseInfoUser.isAnchor,
+            #                     t.next = 3,
+            #                     Object(v.b)();
+            #                 case 3:
+            #                     if (p(),
+            #                     !e) {
+            #                         t.next = 13;
+            #                         break
+            #                     }
+            #                     return t.next = 7,
+            #                     n.e(9).then(n.bind(null, 2147));
+            #                 case 7:
+            #                     return r = t.sent,
+            #                     i = r.loadCutOffMsg,
+            #                     t.next = 11,
+            #                     i();
+            #                 case 11:
+            #                     t.next = 14;
+            #                     break;
+            #                 case 13:
+            #                     Object(f.b)({
+            #                         title: "系统通知",
+            #                         content: "当前直播间被直播管理员切断直播。",
+            #                         width: 300,
+            #                         button: {
+            #                             confirm: "悲痛欲绝 " + l.randomEmoji.sad(),
+            #                             cancel: !1
+            #                         }
+            #                     });
+            #                 case 14:
+            #                 case "end":
+            #                     return t.stop()
+            #                 }
+            #         }, t, this)
+            #     }))
+            # }
+            # )().catch(d.noop);
+                print('直播推流已被超管切断。')
+            elif danmaku['cmd'] == 'ROOM_LOCK': # 直播间被锁定
+                print('直播间已被系统关闭并锁定，请联系客服。')
             else: # 更新用
                 print(danmaku)
                 pass
