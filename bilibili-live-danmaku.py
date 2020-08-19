@@ -421,7 +421,7 @@ while True:
                 print('直播推流已被超管切断。')
             elif danmaku['cmd'] == 'ROOM_LOCK': # 直播间被锁定
                 print('直播间已被系统关闭并锁定，请联系客服。')
-            elif danmaku['cmd'] == 'INTERACT_WORD': # 好像任何人进入直播间都会有这个提示了？不过一段时间内重复进入是没有的
+            elif danmaku['cmd'] == 'INTERACT_WORD': # 每十分钟全站重置所有用户的进入提示，这十分钟内同一用户重复进出同一直播间是不会重复提示的，重置时即使用户未离开直播间，重置后在直播间页面刷新也会出现新的提示
                 print(f'{danmaku["data"]["uname"]} 进入了直播间')
             else: # 更新用
                 print(danmaku)
